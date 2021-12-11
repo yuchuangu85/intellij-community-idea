@@ -1,0 +1,2 @@
+var foo: String in final class B : A, Z implements var foo: String in interface A.
+var foo: String in final class B : A, Z implements var foo: String in interface Z.

@@ -1,0 +1,8 @@
+{
+  "name": "IntelliJ Light",
+  "dark": false,
+  "author": "JetBrains",
+  "editorScheme": "/themes/Light.xml",
+
+  "ui": {}
+}

@@ -1,0 +1,14 @@
+class <warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">async</warning>(object):
+    pass
+
+class <warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">await</warning>(object):
+    pass
+
+def <warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">async</warning>():
+    pass
+
+def <warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">await</warning>():
+    pass
+
+<warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">async</warning> = 1
+<warning descr="Python versions 3.7, 3.8, 3.9, 3.10 do not allow 'async' and 'await' as names">await</warning> = 2

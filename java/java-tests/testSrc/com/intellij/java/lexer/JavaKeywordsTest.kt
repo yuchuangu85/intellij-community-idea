@@ -1,0 +1,33 @@
+// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+package com.intellij.java.lexer
+
+import com.intellij.lang.java.lexer.JavaLexer
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.util.text.ByteArrayCharSequence
+import com.intellij.util.text.CharArrayCharSequence
+import org.junit.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+class JavaKeywordsTest {
+  @Test fun hardAndSoft() {
+    assertTrue(JavaLexer.isKeyword("char", LanguageLevel.JDK_1_9))
+    assertFalse(JavaLexer.isSoftKeyword("char", LanguageLevel.JDK_1_9))
+    assertFalse(JavaLexer.isKeyword("module", LanguageLevel.JDK_1_9))
+    assertTrue(JavaLexer.isSoftKeyword("module", LanguageLevel.JDK_1_9))
+    assertFalse(JavaLexer.isKeyword("sealed", LanguageLevel.JDK_16_PREVIEW))
+    assertTrue(JavaLexer.isSoftKeyword("sealed", LanguageLevel.JDK_16_PREVIEW))
+    assertFalse(JavaLexer.isKeyword("permits", LanguageLevel.JDK_16_PREVIEW))
+    assertTrue(JavaLexer.isSoftKeyword("permits", LanguageLevel.JDK_16_PREVIEW))
+  }
+
+  @Test fun sequences() {
+    assertTrue(JavaLexer.isSoftKeyword(ByteArrayCharSequence("module".toByteArray()), LanguageLevel.JDK_1_9))
+    assertTrue(JavaLexer.isSoftKeyword(CharArrayCharSequence("[module]".toCharArray(), 1, 7), LanguageLevel.JDK_1_9))
+  }
+
+  @Test fun nullTolerance() {
+    assertFalse(JavaLexer.isKeyword(null, LanguageLevel.JDK_1_3))
+    assertFalse(JavaLexer.isSoftKeyword(null, LanguageLevel.JDK_1_9))
+  }
+}

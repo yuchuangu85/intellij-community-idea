@@ -1,0 +1,182 @@
+/*
+ * Copyright 2000-2014 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.intellij.html;
+
+import com.intellij.codeInsight.documentation.DocumentationManager;
+import com.intellij.lang.documentation.DocumentationProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase;
+import junit.framework.ComparisonFailure;
+
+import java.util.Collections;
+import java.util.List;
+
+public class HtmlDocumentationTest extends BasePlatformTestCase {
+  public void testQuickDocumentationHtml5Tag() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<bo<caret>dy onload=\"\">\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>body</pre></div>\n<div class='content'>" +
+           "<p>The <strong><code>&lt;body&gt;</code></strong> <a href=\"https://developer.mozilla.org/en-us/docs/Web/HTML\">HTML</a> " +
+           "element represents the content of",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/body"));
+  }
+
+  public void testQuickDocumentationHtml5TagDialog() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body onload=\"\">\n" +
+           "<dia<caret>log></dialog\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>dialog</pre></div>\n<div class='content'>" +
+           "<p>The <strong><code>&lt;dialog&gt;</code></strong> <a href=\"https://developer.mozilla.org/en-us/docs/Web/HTML\">HTML</a> " +
+           "element represents a dialog box",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/dialog"));
+  }
+
+  public void testQuickDocumentationHtml5Attr() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body on<caret>load=\"\">\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>onload</pre></div>\n<div class='content'>Function to call when the document has finished loading.",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/body#attr-onload"));
+  }
+
+  public void testQuickDocumentationHtml5Svg() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body>\n" +
+           "<sv<caret>g>\n" +
+           "</svg>\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>svg</pre></div>\n<div class='content'>" +
+           "<p>The <code>svg</code> element is a container that defines a new coordinate system and",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/svg/element/svg"));
+  }
+
+  public void testQuickDocumentationHtml5SvgImage() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body>\n" +
+           "<svg>\n" +
+           "<ima<caret>ge>\n" +
+           "</image>\n" +
+           "</svg>\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>image</pre></div>\n<div class='content'>" +
+           "<p><span class=\"seoSummary\">The <strong><code>&lt;image&gt;</code></strong> SVG element includes images inside SVG documents.",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/svg/element/image"));
+  }
+
+  public void testQuickDocumentationHtml5Math() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body>\n" +
+           "<ma<caret>th>\n" +
+           "</math>\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>math</pre></div>\n<div class='content'>" +
+           "<p class=\"summary\">The top-level element in MathML is <code>&lt;math&gt;</code>.",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/mathml/element/math"));
+  }
+
+  public void testQuickDocumentationHtml5MathMrow() {
+    doTest("<!DOCTYPE html>\n" +
+           "<html>\n" +
+           "<body>\n" +
+           "<math>\n" +
+           "<mr<caret>ow>\n" +
+           "</mrow>\n" +
+           "</math>\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>mrow</pre></div>\n<div class='content'>" +
+           "<p class=\"summary\">The MathML <code>&lt;mrow&gt;</code> element is used to group sub-expressions",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/mathml/element/mrow"));
+  }
+
+  public void testQuickDocumentationHtml4Tag() {
+    doTest("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" +
+           "   \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
+           "<html>\n" +
+           "<bo<caret>dy onload=\"\">\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>body</pre></div>\n<div class='content'>" +
+           "<p>The <strong><code>&lt;body&gt;</code></strong> <a href=\"https://developer.mozilla.org/en-us/docs/Web/HTML\">HTML</a> " +
+           "element represents the content of an HTML document.",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/body"));
+  }
+
+  public void testQuickDocumentationHtml4Attr() {
+    doTest("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" +
+           "   \"http://www.w3.org/TR/html4/loose.dtd\">\n" +
+           "<html>\n" +
+           "<body on<caret>load=\"\">\n" +
+           "</body>\n" +
+           "</html>",
+           "<div class='definition'><pre>onload</pre></div>\n<div class='content'>Function to call when the document has finished loading.",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/body#attr-onload"));
+  }
+
+  public void testQuickDocumentationHtml5Script() {
+    doTest("<scr<caret>ipt></script>",
+           "<div class='definition'><pre>script</pre></div>\n<div class='content'>" +
+           "<p>The <strong><code>&lt;script&gt;</code></strong> <a href=\"https://developer.mozilla.org/en-us/docs/Web/HTML\">HTML</a> " +
+           "element is used to embed executable",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/html/element/script"));
+  }
+
+
+  public void testQuickDocumentationHtml5MediaEvents() {
+    doTest("<video on<caret>stalled=''>",
+           "<div class='definition'><pre>onstalled</pre></div>\n<div class='content'><p><span class=\"seoSummary\">" +
+           "The <code>stalled</code> event is fired when the user agent is trying to fetch media data",
+           Collections.singletonList("https://developer.mozilla.org/en-us/docs/web/api/htmlmediaelement/stalled_event"));
+  }
+
+  public void testLookupDocWordCompletions() {
+    myFixture.configureByText("test.html", "<html lang='en'>la<caret>n");
+    PsiElement originalElement = myFixture.getFile().findElementAt(myFixture.getEditor().getCaretModel().getOffset());
+    DocumentationProvider documentationProvider = DocumentationManager.getProviderFromElement(originalElement);
+    PsiElement element = documentationProvider.getDocumentationElementForLookupItem(originalElement.getManager(), "lang", originalElement);
+    assertNull(element);
+  }
+
+  private void doTest(String text, String doc, List<String> url) {
+    myFixture.configureByText("test.html", text);
+    PsiElement originalElement = myFixture.getFile().findElementAt(myFixture.getEditor().getCaretModel().getOffset());
+    PsiElement element = DocumentationManager.getInstance(getProject()).findTargetElement(myFixture.getEditor(), myFixture.getFile());
+    DocumentationProvider documentationProvider = DocumentationManager.getProviderFromElement(originalElement);
+
+    String generatedDoc = documentationProvider.generateDoc(element, originalElement);
+    if (generatedDoc == null) {
+      //noinspection ConstantConditions
+      assertEquals(doc, generatedDoc);
+    } else if (doc == null || !generatedDoc.startsWith(doc)) {
+      throw new ComparisonFailure("Generated doc doesn't start with correct prefix", doc, generatedDoc);
+    }
+    assertEquals(url, documentationProvider.getUrlFor(element, originalElement));
+  }
+}

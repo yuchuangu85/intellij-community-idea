@@ -1,0 +1,29 @@
+# see platform/build-scripts/.../LinuxDistributionBuilder.groovy
+
+name: $NAME$
+version: '$VERSION$'
+summary: $SUMMARY$
+description: $DESCRIPTION$
+grade: $GRADE$
+confinement: classic
+base: core18
+compression: lzo
+architectures: [amd64]
+
+apps:
+  $NAME$:
+    command: $SCRIPT$
+
+parts:
+  common:
+    plugin: dump
+    source: dist.all
+    build-attributes: [no-patchelf]
+  bins:
+    plugin: dump
+    source: dist.unix
+    build-attributes: [no-patchelf]
+  jre:
+    plugin: dump
+    source: jre
+    build-attributes: [no-patchelf]

@@ -1,0 +1,19 @@
+fragment commit on Commit {
+    ...commitShort
+    committer {
+        name
+        email
+        avatarUrl
+        date
+        user {
+            url
+        }
+    }
+    messageHeadline
+    messageBodyHTML
+    parents(first: 100) {
+        nodes {
+            ...commitHash
+        }
+    }
+}

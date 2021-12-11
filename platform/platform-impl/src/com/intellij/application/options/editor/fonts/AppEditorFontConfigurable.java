@@ -1,0 +1,91 @@
+// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+package com.intellij.application.options.editor.fonts;
+
+import com.intellij.ide.IdeBundle;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorFontCache;
+import com.intellij.openapi.editor.colors.FontPreferences;
+import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions;
+import com.intellij.openapi.editor.colors.impl.EditorColorsManagerImpl;
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.Configurable.NoScroll;
+import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.NotNullLazyValue;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+
+public final class AppEditorFontConfigurable implements SearchableConfigurable, Configurable.NoMargin, NoScroll {
+  @NonNls public static final String ID = "editor.preferences.fonts.default";
+  private final NotNullLazyValue<AppEditorFontPanel> myFontPanelInstance = NotNullLazyValue.lazy(() -> new AppEditorFontPanel());
+
+  @NotNull
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @NotNull
+  @Override
+  public JComponent createComponent() {
+    return getFontPanel().getComponent();
+  }
+
+  @Override
+  public boolean isModified() {
+    getFontPanel().updateWarning();
+    return !getStoredPreferences().equals(getUIFontPreferences());
+  }
+
+  @Override
+  public void apply() {
+    AppEditorFontOptions.getInstance().update(getUIFontPreferences());
+    EditorFontCache.getInstance().reset();
+    ((EditorColorsManagerImpl)EditorColorsManager.getInstance()).schemeChangedOrSwitched(null);
+    EditorFactory.getInstance().refreshAllEditors();
+  }
+
+  @NotNull
+  private FontPreferences getUIFontPreferences() {
+    return getFontPanel().getOptionsPanel().getFontPreferences();
+  }
+
+  @Override
+  public void reset() {
+    getStoredPreferences().copyTo(getUIFontPreferences());
+    getFontPanel().getOptionsPanel().updateOnChangedFont();
+  }
+
+  @NotNull
+  private static FontPreferences getStoredPreferences() {
+    return AppEditorFontOptions.getInstance().getFontPreferences();
+  }
+
+  @NotNull
+  private AppEditorFontPanel getFontPanel() {
+    return myFontPanelInstance.getValue();
+  }
+
+  @Nls
+  @Override
+  public String getDisplayName() {
+    return IdeBundle.message("configurable.font.name");
+  }
+
+  @Override
+  public void disposeUIResources() {
+    if (myFontPanelInstance.isComputed()) {
+      Disposer.dispose(getFontPanel());
+    }
+  }
+
+  @NotNull
+  @Override
+  public String getHelpTopic() {
+    return "reference.settingsdialog.IDE.editor.colors";
+  }
+}

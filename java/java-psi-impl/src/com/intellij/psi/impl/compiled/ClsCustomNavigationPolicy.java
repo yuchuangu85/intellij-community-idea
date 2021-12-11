@@ -1,0 +1,23 @@
+// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+package com.intellij.psi.impl.compiled;
+
+import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public interface ClsCustomNavigationPolicy {
+  ExtensionPointName<ClsCustomNavigationPolicy> EP_NAME = ExtensionPointName.create("com.intellij.psi.clsCustomNavigationPolicy");
+
+  @Nullable
+  default PsiElement getNavigationElement(@NotNull ClsFileImpl clsFile) { return null; }
+
+  @Nullable
+  default PsiElement getNavigationElement(@NotNull ClsClassImpl clsClass) { return null; }
+
+  @Nullable
+  default PsiElement getNavigationElement(@NotNull ClsMethodImpl clsMethod) { return null; }
+
+  @Nullable
+  default PsiElement getNavigationElement(@NotNull ClsFieldImpl clsField) { return null; }
+}

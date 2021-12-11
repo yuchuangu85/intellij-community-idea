@@ -1,0 +1,237 @@
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+package training.dsl
+
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
+import com.intellij.ui.tree.TreeVisitor
+import com.intellij.util.ui.tree.TreeUtil
+import org.intellij.lang.annotations.Language
+import org.jetbrains.annotations.Nls
+import training.learn.LearnBundle
+import training.ui.LearningUiHighlightingManager
+import training.ui.LearningUiManager
+import java.awt.Component
+import java.awt.Rectangle
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
+import javax.swing.Icon
+import javax.swing.JList
+import javax.swing.JTree
+import javax.swing.tree.TreePath
+
+@LearningDsl
+abstract class TaskContext : LearningDslBase {
+  abstract val project: Project
+
+  open val taskId: TaskId = TaskId(0)
+
+  /**
+   * This property can be set to the true if you want that the next task restore will jump over the current task.
+   * Default `null` value is reserved for the future automatic transparent restore calculation.
+   */
+  open var transparentRestore: Boolean? = null
+
+  /**
+   * Can be set to true iff you need to rehighlight the triggered element from the previous task when it will be shown again.
+   * Note: that the rehighlighted element can be different from `previous?.ui` (it can become `null` or `!isValid` or `!isShowing`)
+   * */
+  open var rehighlightPreviousUi: Boolean? = null
+
+  /**
+   * Can be set to true iff you need to propagate found highlighting component from the previous task as found from the current task.
+   * So it may be used as `previous.ui`. And will be rehighlighted on restore.
+   *
+   * The default `null` means true now, but it may be changed later.
+   */
+  open var propagateHighlighting: Boolean? = null
+
+  /** Put here some initialization for the task */
+  open fun before(preparation: TaskRuntimeContext.() -> Unit) = Unit
+
+  /**
+   * @param [restoreId] where to restore, `null` means the previous task
+   * @param [delayMillis] the delay before restore actions can be applied.
+   *                      Delay may be needed to give pass condition take place.
+   *                      It is a hack solution because of possible race conditions.
+   * @param [checkByTimer] Check by timer may be useful in UI detection tasks (in submenus for example).
+   * @param [restoreRequired] returns true iff restore is needed
+   */
+  open fun restoreState(restoreId: TaskId? = null, delayMillis: Int = 0, checkByTimer: Int? = null, restoreRequired: TaskRuntimeContext.() -> Boolean) = Unit
+
+  /** Shortcut */
+  fun restoreByUi(restoreId: TaskId? = null, delayMillis: Int = 0, checkByTimer: Int? = null) {
+    restoreState(restoreId, delayMillis, checkByTimer) {
+      previous.ui?.isShowing?.not() ?: true
+    }
+  }
+
+  /** Restore when timer is out. Is needed for chained tasks. */
+  open fun restoreByTimer(delayMillis: Int = 2000, restoreId: TaskId? = null) = Unit
+
+  data class RestoreNotification(@Nls val message: String,
+                                 @Nls val restoreLinkText: String = LearnBundle.message("learn.restore.default.link.text"),
+                                 val callback: () -> Unit)
+
+  open fun proposeRestore(restoreCheck: TaskRuntimeContext.() -> RestoreNotification?) = Unit
+
+  open fun showWarning(@Language("HTML") @Nls text: String,
+                       restoreTaskWhenResolved: Boolean = false,
+                       warningRequired: TaskRuntimeContext.() -> Boolean) = Unit
+
+  /**
+   * Write a text to the learn panel (panel with a learning tasks).
+   */
+  open fun text(@Language("HTML") @Nls text: String, useBalloon: LearningBalloonConfig? = null) = Unit
+
+  /** Add an illustration */
+  fun illustration(icon: Icon): Unit = text("<illustration>${LearningUiManager.getIconIndex(icon)}</illustration>")
+
+  /** Insert text in the current position */
+  open fun type(text: String) = Unit
+
+  /** Write a text to the learn panel (panel with a learning tasks). */
+  open fun runtimeText(@Nls callback: RuntimeTextContext.() -> String?) = Unit
+
+  /** Simply wait until an user perform particular action */
+  open fun trigger(actionId: String) = Unit
+
+  /** Simply wait until an user perform actions */
+  open fun trigger(checkId: (String) -> Boolean) = Unit
+
+  /** Trigger on actions start. Needs if you want to split long actions into several tasks. */
+  open fun triggerStart(actionId: String, checkState: TaskRuntimeContext.() -> Boolean = { true }) = Unit
+
+  /** [actionIds] these actions required for the current task */
+  open fun triggers(vararg actionIds: String) = Unit
+
+  /** An user need to rice an action which leads to necessary state change */
+  open fun <T : Any?> trigger(actionId: String,
+                              calculateState: TaskRuntimeContext.() -> T,
+                              checkState: TaskRuntimeContext.(T, T) -> Boolean) = Unit
+
+  /** An user need to rice an action which leads to appropriate end state */
+  fun trigger(actionId: String, checkState: TaskRuntimeContext.() -> Boolean) {
+    trigger(actionId, { }, { _, _ -> checkState() })
+  }
+
+  /**
+   * Check that IDE state is as expected
+   * In some rare cases DSL could wish to complete a future by itself
+   */
+  open fun stateCheck(checkState: TaskRuntimeContext.() -> Boolean): CompletableFuture<Boolean> = CompletableFuture()
+
+  /**
+   * Check that IDE state is fit
+   * @return A feature with value associated with fit state
+   */
+  open fun <T : Any> stateRequired(requiredState: TaskRuntimeContext.() -> T?): Future<T> = CompletableFuture()
+
+  /**
+   * Check that IDE state is as expected and check it by timer.
+   * Need to consider merge this method with [stateCheck].
+   */
+  open fun timerCheck(delayMillis: Int = 200, checkState: TaskRuntimeContext.() -> Boolean): CompletableFuture<Boolean> = CompletableFuture()
+
+  open fun addFutureStep(p: DoneStepContext.() -> Unit) = Unit
+
+  open fun addStep(step: CompletableFuture<Boolean>) = Unit
+
+  /** [action] What should be done to pass the current task */
+  open fun test(waitEditorToBeReady: Boolean = true, action: TaskTestContext.() -> Unit) = Unit
+
+  fun triggerByFoundPathAndHighlight(highlightBorder: Boolean = true, highlightInside: Boolean = false,
+                                     usePulsation: Boolean = false, clearPreviousHighlights: Boolean = true,
+                                     checkPath: TaskRuntimeContext.(tree: JTree, path: TreePath) -> Boolean) {
+    val options = LearningUiHighlightingManager.HighlightingOptions(highlightBorder, highlightInside, usePulsation, clearPreviousHighlights)
+    triggerByFoundPathAndHighlight(options) { tree ->
+      TreeUtil.visitVisibleRows(tree, TreeVisitor { path ->
+        if (checkPath(tree, path)) TreeVisitor.Action.INTERRUPT else TreeVisitor.Action.CONTINUE
+      })
+    }
+  }
+
+  // This method later can be converted to the public (But I'm not sure it will be ever needed in a such form)
+  protected open fun triggerByFoundPathAndHighlight(options: LearningUiHighlightingManager.HighlightingOptions,
+                                                    checkTree: TaskRuntimeContext.(tree: JTree) -> TreePath?) = Unit
+
+  inline fun <reified T : Component> triggerByPartOfComponent(highlightBorder: Boolean = true, highlightInside: Boolean = false,
+                                                              usePulsation: Boolean = false, clearPreviousHighlights: Boolean = true,
+                                                              noinline selector: ((candidates: Collection<T>) -> T?)? = null,
+                                                              crossinline rectangle: TaskRuntimeContext.(T) -> Rectangle?) {
+    val componentClass = T::class.java
+    @Suppress("DEPRECATION")
+    triggerByFoundPathAndHighlightImpl(componentClass, highlightBorder, highlightInside,
+      usePulsation, clearPreviousHighlights, selector) { rectangle(it) }
+  }
+
+  @Deprecated("Use inline version")
+  open fun <T : Component> triggerByFoundPathAndHighlightImpl(componentClass: Class<T>,
+                                                              highlightBorder: Boolean,
+                                                              highlightInside: Boolean,
+                                                              usePulsation: Boolean,
+                                                              clearPreviousHighlights: Boolean,
+                                                              selector: ((candidates: Collection<T>) -> T?)?,
+                                                              rectangle: TaskRuntimeContext.(T) -> Rectangle?) = Unit
+
+  fun triggerByListItemAndHighlight(highlightBorder: Boolean = true, highlightInside: Boolean = false,
+                                    usePulsation: Boolean = false, clearPreviousHighlights: Boolean = true,
+                                    checkList: TaskRuntimeContext.(item: Any) -> Boolean) {
+    val options = LearningUiHighlightingManager.HighlightingOptions(highlightBorder, highlightInside, usePulsation, clearPreviousHighlights)
+    triggerByFoundListItemAndHighlight(options) { ui: JList<*> ->
+      LessonUtil.findItem(ui) { checkList(it) }
+    }
+  }
+
+  // This method later can be converted to the public (But I'm not sure it will be ever needed in a such form
+  protected open fun triggerByFoundListItemAndHighlight(options: LearningUiHighlightingManager.HighlightingOptions,
+                                                        checkList: TaskRuntimeContext.(list: JList<*>) -> Int?) = Unit
+
+  inline fun <reified ComponentType : Component> triggerByUiComponentAndHighlight(
+    highlightBorder: Boolean = true, highlightInside: Boolean = true,
+    usePulsation: Boolean = false, clearPreviousHighlights: Boolean = true,
+    noinline selector: ((candidates: Collection<ComponentType>) -> ComponentType?)? = null,
+    crossinline finderFunction: TaskRuntimeContext.(ComponentType) -> Boolean
+  ) {
+    val componentClass = ComponentType::class.java
+    @Suppress("DEPRECATION")
+    triggerByUiComponentAndHighlightImpl(componentClass, highlightBorder, highlightInside,
+      usePulsation, clearPreviousHighlights, selector) { finderFunction(it) }
+  }
+
+  @Deprecated("Use inline version")
+  open fun <ComponentType : Component>
+    triggerByUiComponentAndHighlightImpl(componentClass: Class<ComponentType>,
+                                         highlightBorder: Boolean,
+                                         highlightInside: Boolean,
+                                         usePulsation: Boolean,
+                                         clearPreviousHighlights: Boolean,
+                                         selector: ((candidates: Collection<ComponentType>) -> ComponentType?)?,
+                                         finderFunction: TaskRuntimeContext.(ComponentType) -> Boolean) = Unit
+
+  open fun caret(position: LessonSamplePosition) = before {
+    caret(position)
+  }
+
+  /** NOTE:  [line] and [column] starts from 1 not from zero. So these parameters should be same as in editors. */
+  open fun caret(line: Int, column: Int) = before {
+    caret(line, column)
+  }
+
+  class DoneStepContext(private val future: CompletableFuture<Boolean>, rt: TaskRuntimeContext) : TaskRuntimeContext(rt) {
+    fun completeStep() {
+      ApplicationManager.getApplication().assertIsDispatchThread()
+      if (!future.isDone && !future.isCancelled) {
+        future.complete(true)
+      }
+    }
+  }
+
+  data class TaskId(val idx: Int)
+
+  companion object {
+    val CaretRestoreProposal: String
+      get() = LearnBundle.message("learn.restore.notification.caret.message")
+    val ModificationRestoreProposal: String
+      get() = LearnBundle.message("learn.restore.notification.modification.message")
+  }
+}

@@ -1,0 +1,25 @@
+<html>
+<body>
+Reports multi-<code>catch</code> sections and suggests splitting them into separate <code>catch</code> blocks.
+<p>Example:</p>
+<pre><code>
+  try {
+    int i = getIndex();
+  } catch (NullPointerException|IndexOutOfBoundsException e) {
+    e.printStackTrace();
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  try {
+    int i = getIndex();
+  } catch (NullPointerException e) {
+    e.printStackTrace();
+  } catch (IndexOutOfBoundsException e) {
+    e.printStackTrace();
+  }
+</code></pre>
+<!-- tooltip end -->
+<p>This inspection only reports if the language level of the project or module is 7 or higher.</p>
+</body>
+</html>

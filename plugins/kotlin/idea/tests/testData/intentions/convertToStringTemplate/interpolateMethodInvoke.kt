@@ -1,0 +1,7 @@
+// WITH_RUNTIME
+// AFTER-WARNING: Parameter 'args' is never used
+// AFTER-WARNING: Variable 'y' is never used
+fun main(args: Array<String>){
+    val x = "abcd"
+    val y = x +<caret> x.reversed()
+}

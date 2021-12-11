@@ -1,0 +1,9 @@
+<idea-plugin>
+  <extensions defaultExtensionNs="com.intellij">
+    <appStarter implementation="com.intellij.codeInspection.InspectionMain"/>
+  </extensions>
+  <extensionPoints>
+    <extensionPoint name="inspectResultsConsumer" interface="com.intellij.codeInspection.InspectResultsConsumer" dynamic="true"/>
+    <extensionPoint name="inspectionApplicationFactory" interface="com.intellij.codeInspection.InspectionApplicationFactory" dynamic="true"/>
+  </extensionPoints>
+</idea-plugin>

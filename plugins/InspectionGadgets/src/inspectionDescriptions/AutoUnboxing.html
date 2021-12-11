@@ -1,0 +1,13 @@
+<html>
+<body>
+Reports expressions that are affected by unboxing conversion (automatic unwrapping of objects into primitive values).
+Try not to use objects instead of primitives. It might significantly affect the performance.
+<p><b>Example:</b></p>
+<pre><code>int x = new Integer(42);</code></pre>
+<p>The quick-fix makes the conversion explicit:</p>
+<pre><code>int x = new Integer(42).intValue();</code></pre>
+<!-- tooltip end -->
+<p>Autoboxing conversion is not supported in Java 1.4 and earlier JVM.</p>
+
+</body>
+</html>

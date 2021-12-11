@@ -1,0 +1,27 @@
+<!-- Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file. -->
+<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
+  <name>PyCharm Community Customization</name>
+  <id>com.jetbrains.pycharm.community.customization</id>
+  <vendor>JetBrains</vendor>
+  <resource-bundle>messages.ActionsBundle</resource-bundle>
+
+  <depends>com.intellij.modules.pycharm.community</depends>
+  <depends>com.intellij.modules.python</depends>
+
+  <xi:include href="/META-INF/pycharm-community-customization.xml"/>
+  <xi:include href="/META-INF/tips-pycharm-community.xml"/>
+  <xi:include href="/META-INF/jupyter-view-only.xml"/>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationInitializedListener implementation="com.jetbrains.python.PyCharmCorePluginConfigurator"/>
+
+    <projectService serviceInterface="com.intellij.psi.search.ProjectScopeBuilder"
+                    serviceImplementation="com.jetbrains.python.psi.search.PyProjectScopeBuilder"
+                    overrides="true"/>
+
+    <annotator language="Python" implementationClass="com.jetbrains.python.PyCharmProfessionalAdvertiser"/>
+    <annotator language="TEXT" implementationClass="com.jetbrains.python.PyCharmProfessionalAdvertiser"/>
+    <annotator language="JSON" implementationClass="com.jetbrains.python.PyCharmProfessionalAdvertiser"/>
+    <projectService serviceImplementation="com.jetbrains.python.PyCharmProfessionalAdvertiserSettings"/>
+  </extensions>
+</idea-plugin>

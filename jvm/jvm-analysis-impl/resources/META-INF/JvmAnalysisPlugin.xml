@@ -1,0 +1,92 @@
+<idea-plugin>
+  <extensionPoints>
+    <extensionPoint qualifiedName="com.intellij.codeInsight.blockingMethodChecker"
+                    interface="com.intellij.codeInspection.blockingCallsDetection.BlockingMethodChecker" dynamic="true"/>
+    <extensionPoint qualifiedName="com.intellij.codeInsight.nonBlockingContextChecker"
+                    interface="com.intellij.codeInspection.blockingCallsDetection.NonBlockingContextChecker" dynamic="true"/>
+  </extensionPoints>
+  <extensions defaultExtensionNs="com.intellij">
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" shortName="UnstableApiUsage"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.unstable.api.usage.display.name"
+                     implementationClass="com.intellij.codeInspection.UnstableApiUsageInspection"/>
+    <localInspection language="UAST" enabledByDefault="false" level="WARNING" shortName="UnstableTypeUsedInSignature"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.unstable.type.used.in.signature.display.name"
+                     implementationClass="com.intellij.codeInspection.UnstableTypeUsedInSignatureInspection"/>
+    <localInspection language="UAST" shortName="BlockingMethodInNonBlockingContext"
+                     groupBundle="messages.JvmAnalysisBundle" groupKey="jvm.inspections.group.name"
+                     enabledByDefault="true" level="WARNING"
+                     key="jvm.inspections.blocking.method.display.name" bundle="messages.JvmAnalysisBundle"
+                     implementationClass="com.intellij.codeInspection.blockingCallsDetection.BlockingMethodInNonBlockingContextInspection"/>
+    <localInspection language="UAST" shortName="SourceToSinkFlow"  suppressId="tainting"
+                     groupBundle="messages.JvmAnalysisBundle" groupKey="jvm.inspections.group.name"
+                     enabledByDefault="true" level="WARNING"
+                     implementationClass="com.intellij.codeInspection.sourceToSink.SourceToSinkFlowInspection"
+                     key="jvm.inspections.source.to.sink.flow.display.name" bundle="messages.JvmAnalysisBundle"/>
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" shortName="NonExtendableApiUsage"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.api.no.extension.display.name"
+                     implementationClass="com.intellij.codeInspection.NonExtendableApiUsageInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" shortName="OverrideOnly"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.api.override.only.display.name"
+                     implementationClass="com.intellij.codeInspection.OverrideOnlyInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="ERROR" shortName="MissingDeprecatedAnnotationOnScheduledForRemovalApi"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name"
+                     key="jvm.inspections.missing.deprecated.annotation.on.scheduled.for.removal.api.display.name"
+                     implementationClass="com.intellij.codeInspection.MissingDeprecatedAnnotationOnScheduledForRemovalApiInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="ERROR" shortName="MustAlreadyBeRemovedApi"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.must.already.be.removed.api.display.name"
+                     implementationClass="com.intellij.codeInspection.MustAlreadyBeRemovedApiInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="ERROR" shortName="Dependency"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.dependency.display.name"
+                     implementationClass="com.intellij.codeInspection.DependencyInspection"/>
+    <localInspection language="UAST" enabledByDefault="false" level="ERROR" shortName="JUnitRule"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.junit.rule.display.name"
+                     implementationClass="com.intellij.codeInspection.JUnitRuleInspection"/>
+    <localInspection language="UAST" enabledByDefault="false" level="WARNING" shortName="TestOnlyProblems"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.testonly.display.name"
+                     implementationClass="com.intellij.codeInspection.TestOnlyInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" shortName="TestFailedLine"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspection.test.failed.line.display.name"
+                     implementationClass="com.intellij.codeInspection.TestFailedLineInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" shortName="JUnit5AssertionsConverter"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.junit5.assertions.converter.display.name"
+                     implementationClass="com.intellij.codeInspection.JUnit5AssertionsConverterInspection"/>
+    <localInspection language="UAST" enabledByDefault="false" level="WARNING" shortName="JUnit5Converter"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.junit5.converter.display.name"
+                     implementationClass="com.intellij.codeInspection.JUnit5ConverterInspection"/>
+    <localInspection language="UAST" enabledByDefault="true" level="WARNING" suppressId="CallToThreadRun" shortName="ThreadRun"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.thread.run.display.name"
+                     implementationClass="com.intellij.codeInspection.ThreadRunInspection"/>
+    <localInspection language="UAST" enabledByDefault="false" level="WARNING" suppressId="serial" alternativeId="serial"
+                     shortName="SerializableHasSerialVersionUIDField"
+                     groupBundle="messages.JvmAnalysisBundle" bundle="messages.JvmAnalysisBundle"
+                     groupKey="jvm.inspections.group.name" key="jvm.inspections.serializable.class.without.serialversionuid.display.name"
+                     implementationClass="com.intellij.codeInspection.SerializableHasSerialVersionUidFieldInspection"/>
+    <notificationGroup id="UAST" displayType="BALLOON"/>
+    <projectService serviceInterface="com.intellij.codeInsight.AnnotationCacheOwnerNormalizer"
+                    serviceImplementation="com.intellij.psi.UastAnnotationCacheOwnerNormalizer"/>
+  </extensions>
+  <extensions defaultExtensionNs="com.intellij.codeInsight">
+    <blockingMethodChecker implementation="com.intellij.codeInspection.blockingCallsDetection.ThrowsTypeBlockingMethodChecker"/>
+  </extensions>
+  <actions>
+    <group id="UastInternal" text="UAST" internal="true" popup="true">
+      <action id="DumpUastLog" internal="true" class="com.intellij.analysis.internal.DumpUastTreeAction" text="Dump UAST Tree"/>
+      <action id="DumpUastLogByElement" internal="true" class="com.intellij.analysis.internal.DumpUastTreeActionByEach"
+              text="Dump UAST Tree By Each PsiElement"/>
+      <add-to-group group-id="Internal" anchor="last"/>
+    </group>
+  </actions>
+</idea-plugin>

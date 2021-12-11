@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports all calls to parametrized methods in which explicit argument types
+can be omitted since they will be unambiguously inferred by the compiler.
+<p>
+  Using redundant type arguments makes code superfluous and thus less readable.
+</p>
+<p>Example:</p>
+<pre><code>
+  List&lt;String&gt; list = Arrays.&lt;String&gt;asList("Hello", "World");
+</code></pre>
+<p>A quick-fix is provided to remove redundant type arguments:</p>
+<pre><code>
+  List&lt;String&gt; list = Arrays.asList("Hello", "World");
+</code></pre>
+</body>
+</html>

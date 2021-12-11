@@ -1,0 +1,9 @@
+<html>
+<body>
+Reports usage of <code>VirtualFile.getChildren()</code> inside recursive methods.
+<p>
+  This may cause endless loops when iterating over cyclic symlinks.
+  Use <code>VfsUtilCore.visitChildrenRecursively()</code> instead.
+</p>
+</body>
+</html>

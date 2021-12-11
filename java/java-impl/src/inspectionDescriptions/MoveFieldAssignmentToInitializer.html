@@ -1,0 +1,26 @@
+<html>
+<body>
+Suggests replacing initializations of a field via assignment with field initializers.
+<p>The code is highlighted only if the field initializer is located in the initializer, and
+  joining it with the field declaration is likely to be safe.
+  In other cases, the inspection provides a quick-fix without code highlighting, as the fix may change the code semantics.</p>
+<p>Example:</p>
+<pre><code>
+  class MyClass {
+    static final int intConstant;
+    
+    static {
+      intConstant = 10;
+    }
+  }
+</code></pre>
+The quick fix moves the assigned value to the field initializer removing the class initializer section if possible:
+<pre><code>
+  class MyClass {
+    static final int intConstant = 10;
+  }
+</code></pre>
+<!-- tooltip end -->
+<small>Since 2017.2</small>
+</body>
+</html>

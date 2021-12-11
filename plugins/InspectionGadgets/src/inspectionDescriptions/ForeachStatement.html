@@ -1,0 +1,22 @@
+<html>
+<body>
+Reports enhanced <code>for</code> statements.
+Such <code>for</code> statements are not supported by Java of version 1.4 and older.
+<p>Example:</p>
+<pre><code>
+  for (int x: Arrays.asList(1, 2, 3)) {
+    System.out.println(x);
+  }
+</code></pre>
+<p>After the quick-fix is applied: </p>
+<pre><code>
+  for (Iterator&lt;Integer&gt; iterator = Arrays.asList(1, 2, 3).iterator(); iterator.hasNext(); ) {
+    final int x = iterator.next();
+    System.out.println(x);
+  }
+</code></pre>
+<!-- tooltip end -->
+<p>
+
+</body>
+</html>
