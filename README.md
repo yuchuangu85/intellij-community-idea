@@ -1,6 +1,11 @@
 # IntelliJ IDEA Community Edition [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+> The souce code of Intellij IDEA Community base version 213.5744.223
+>
+> This resposity main to analyse the flow of this software
+
 These instructions will help you build IntelliJ IDEA Community Edition from source code, which is the basis for IntelliJ Platform development.
 The following conventions will be used to refer to directories on your machine:
+
 * `<USER_HOME>` is your home directory.
 * `<IDEA_HOME>` is the root directory for the IntelliJ source code.
 
@@ -45,7 +50,7 @@ Using IntelliJ IDEA **File | Open**, select the `<IDEA_HOME>` directory.
    to enable the "Compile independent modules in parallel" option. Also, increase build process heap size:
    * if you use IntelliJ IDEA 2020.3 or newer, set "User-local build process heap size" to 2048. 
    * if you use IntelliJ IDEA 2020.2 or older, copy value from "Shared build process VM options" to "User-local build process VM options" and add `-Xmx2G` to it.
-    
+   
     These changes will greatly reduce compilation time.
 
 ### Building the IntelliJ Application Source Code
@@ -62,6 +67,6 @@ To run tests on the build, apply these setting to the **Run | Edit Configuration
     * `-ea` 
     * `-Didea.config.path=../test-config`
     * `-Didea.system.path=../test-system`
- 
+
 You can find other helpful information at [https://www.jetbrains.com/opensource/idea](https://www.jetbrains.com/opensource/idea).
 The "Contribute Code" section of that site describes how you can contribute to IntelliJ IDEA.
