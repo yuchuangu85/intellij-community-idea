@@ -73,6 +73,7 @@ public class OpenFileAction extends AnAction implements DumbAware, LightEditComp
         }
       }
       for (VirtualFile file : files) {
+        // choose the file and open it
         doOpenFile(project, file);
       }
     });

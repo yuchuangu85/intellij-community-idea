@@ -36,6 +36,7 @@ import static com.intellij.openapi.wm.impl.welcomeScreen.WelcomeScreenActionsUti
 import static com.intellij.openapi.wm.impl.welcomeScreen.WelcomeScreenActionsUtil.splitAndWrapActions;
 import static com.intellij.openapi.wm.impl.welcomeScreen.WelcomeScreenComponentFactory.getApplicationTitle;
 
+// Welcome to Intellij IDEA page(the first page)
 class EmptyStateProjectsPanel extends BorderLayoutPanel {
 
   EmptyStateProjectsPanel(@NotNull Disposable parentDisposable) {
@@ -43,7 +44,7 @@ class EmptyStateProjectsPanel extends BorderLayoutPanel {
     JPanel mainPanel = new NonOpaquePanel(new VerticalFlowLayout());
     mainPanel.setBorder(JBUI.Borders.emptyTop(103));
 
-    mainPanel.add(createTitle());
+    mainPanel.add(createTitle());// Title is: Welcome to Intellij IDEA
     mainPanel.add(createCommentLabel(IdeBundle.message("welcome.screen.empty.projects.create.comment")));
     mainPanel.add(createCommentLabel(IdeBundle.message("welcome.screen.empty.projects.open.comment")));
 
@@ -52,11 +53,13 @@ class EmptyStateProjectsPanel extends BorderLayoutPanel {
                           action -> ActionGroupPanelWrapper.wrapGroups(action, parentDisposable),
                           PRIMARY_BUTTONS_NUM);
     ActionGroup main = new DefaultActionGroup(
+      // New Project
       ContainerUtil.map2List(mainAndMore.getFirst().getChildren(null), LargeIconWithTextWrapper::wrapAsBigIconWithText));
 
     ActionToolbarImpl actionsToolbar = createActionsToolbar(main);
     mainPanel.add(new Wrapper(new FlowLayout(), actionsToolbar.getComponent()));
 
+    // Open
     DefaultActionGroup moreActionGroup = mainAndMore.getSecond();
     if (moreActionGroup.getChildrenCount() > 0) {
       JComponent actionLink;
